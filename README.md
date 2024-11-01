@@ -29,3 +29,17 @@ class Product {
     );
   }
 }
+##-------- Creating a Method --------------##
+ late Future<List<Product>?> futureProducts; 
+  final String url = 'https://jsonplaceholder.typicode.com/posts';
+
+  @override
+  void initState() {
+    super.initState();
+    // Initializing the GET request to fetch products
+    final getRequest = GetRequest<Product>(
+      url: url,
+      fromJson: (json) => Product.fromJson(json),
+      shouldPrintErrors: true,
+      shouldPrintStackTrace: true,
+    );
