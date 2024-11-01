@@ -1,7 +1,8 @@
+// /lib/services/base_request.dart
+
 import 'dart:convert';
 import 'dart:developer';
-
-import 'package:http/http.dart'as http;
+import 'package:http/http.dart' as http;
 
 abstract class BaseRequest<T> {
   final String url;
@@ -21,7 +22,6 @@ abstract class BaseRequest<T> {
     try {
       final response = await requestFunc();
       if (response.statusCode == 200 || response.statusCode == 201) {
-        // Ensure this correctly handles a list response
         List<dynamic> jsonResponse = json.decode(response.body);
         return jsonResponse.map((item) => fromJson(item)).toList();
       } else {
@@ -34,7 +34,7 @@ abstract class BaseRequest<T> {
       if (shouldPrintStackTrace) {
         log('StackTrace: $st');
       }
-      return null; // Return null on error
+      return null;
     }
   }
 }

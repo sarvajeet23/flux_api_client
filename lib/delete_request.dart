@@ -1,8 +1,5 @@
-// /lib/services/delete_request.dart
-
 import 'dart:developer';
-
-import 'service/base_request.dart';
+import 'package:flux_api_client/service/base_request.dart';
 import 'package:http/http.dart' as http;
 
 class DeleteRequest<T> extends BaseRequest<T> {
