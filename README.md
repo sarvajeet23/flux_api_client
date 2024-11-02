@@ -29,7 +29,7 @@ class Product {
     );
   }
 }
-##-------- Creating a Method --------------##
+##---------------------------- Creating a Method ----------------------------##
 
 
 class ProductsPage extends StatefulWidget {
@@ -146,4 +146,122 @@ class _ProductsPageState extends State<ProductsPage> {
     );
   }
 }
+###----------------------------------- ClientService with GetX Example ---------------------------------------------------####
 
+## ClientService.dart
+
+```dart
+class ClientService {
+  final String baseUrl = 'https://jsonplaceholder.typicode.com';
+  final String usersEndpoint = '/users';
+
+  /// Fetch a list of products from the API.
+  Future<List<Product>?> fetchProducts() async {
+    try {
+      final getRequest = GetRequest<Product>(
+        responsePrint: true,
+        url: '$baseUrl$usersEndpoint',
+        fromJson: (json) => Product.fromJson(json),
+      );
+      return await getRequest.fetchProducts();
+    } catch (e) {
+      // Handle error (e.g., log the error)
+      return null;
+    }
+  }
+
+  /// Create a new product in the API.
+  Future<Product?> createProduct(Product product) async {
+    try {
+      final postRequest = PostRequest<Product>(
+        url: '$baseUrl$usersEndpoint',
+        fromJson: (json) => Product.fromJson(json),
+        body: product.toJson(),
+      );
+      return await postRequest.send();
+    } catch (e) {
+      // Handle error
+      return null;
+    }
+  }
+
+  /// Delete a product by its ID.
+  Future<bool> deleteProduct(int id) async {
+    try {
+      final deleteRequest = DeleteRequest<Product>(
+        url: '$baseUrl$usersEndpoint/$id',
+        fromJson: (json) => Product.fromJson(json),
+        shouldPrintErrors: true,
+        shouldPrintStackTrace: true,
+      );
+      return await deleteRequest.delete();
+    } catch (e) {
+      // Handle error
+      return false;
+    }
+  }
+}
+#-------controller----------#
+class ProductsController extends GetxController {
+  final ClientService productService = ClientService();
+  var products = <Product>[].obs; // Use observable list
+  var isLoading = true.obs; // Use observable for loading state
+
+  @override
+  void onInit() {
+    super.onInit();
+    fetchProducts();
+  }
+
+  /// Fetch products from the API
+  Future<void> fetchProducts() async {
+    _setLoading(true);
+    try {
+      final fetchedProducts = await productService.fetchProducts();
+      products.value = fetchedProducts ?? [];
+    } catch (e) {
+      _showSnackbar('Error', 'Failed to fetch products.');
+    } finally {
+      _setLoading(false);
+    }
+  }
+
+  /// Create a new product
+  Future<void> createProduct() async {
+    final newProduct = Product(id: null, name: "shiboo", username: "sarvajeet");
+    try {
+      final response = await productService.createProduct(newProduct);
+      if (response != null) {
+        products.add(response); // Automatically updates the UI
+        _showSnackbar('Success', 'Product Created: ${response.name}');
+      }
+    } catch (e) {
+      _showSnackbar('Error', 'Failed to create product.');
+    }
+  }
+
+  /// Delete a product by ID
+  Future<void> deleteProduct(int id) async {
+    try {
+      final isDeleted = await productService.deleteProduct(id);
+      if (isDeleted) {
+        products.removeWhere((product) => product.id == id);
+        _showSnackbar('Success', 'Product Deleted Successfully.');
+      } else {
+        _showSnackbar('Error', 'Error deleting product.');
+      }
+    } catch (e) {
+      _showSnackbar('Error', 'Failed to delete product.');
+    }
+  }
+
+  /// Private method to set loading state
+  void _setLoading(bool loading) {
+    isLoading.value = loading; // Update observable
+  }
+
+  /// Private method to show a snackbar
+  void _showSnackbar(String title, String message) {
+    Get.snackbar(title, message);
+  }
+}
