@@ -1,6 +1,6 @@
 name: flux_api_client
 description: "A Flutter package for handling HTTP requests easily and efficiently with dynamic response mapping."
-version: 0.0.4
+version: 0.0.5
 homepage: https://github.com/sarvajeet23/flux_api_client
 license: MIT
 environment:
